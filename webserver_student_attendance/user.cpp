@@ -166,11 +166,65 @@ void handleUpdateUserRequest(WebServer* server, sqlite3* db) {
   String response = "<html><body><h1>User Updated</h1><p>The user was updated successfully.</p></body></html>";
   server->send(200, "text/html", response);
 }
-
-
 */
 
+//---------------------------Delete user : HTML ------------------------------
+/*
+void handleDeleteUser(WebServer* server, sqlite3* db, const String& userId) {
+  // Construct the DELETE statement using a prepared statement
+  sqlite3_stmt* stmt;
+  const char* tail;
+  const char* sql = "DELETE FROM user WHERE id = ?";
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, &tail);
+  if (rc != SQLITE_OK) {
+    server->send(500, "text/html", "Error: failed to prepare DELETE statement");
+    return;
+  }
 
+  // Bind the user ID parameter to the prepared statement
+  rc = sqlite3_bind_int(stmt, 1, userId.toInt());
+  if (rc != SQLITE_OK) {
+    server->send(500, "text/html", "Error: failed to bind user ID parameter");
+    sqlite3_finalize(stmt);
+    return;
+  }
+
+  // Execute the prepared statement
+  rc = sqlite3_step(stmt);
+  if (rc != SQLITE_DONE) {
+    server->send(500, "text/html", "Error: failed to execute DELETE statement");
+    sqlite3_finalize(stmt);
+    return;
+  }
+
+  // Send a success response to the client
+  String response = "<html><body><h1>User deleted</h1>";
+  response += "<p>The user was deleted successfully.</p>";
+  response += "</body></html>";
+  server->send(200, "text/html", response);
+
+  // Clean up the prepared statement
+  sqlite3_finalize(stmt);
+}
+
+
+void handleDeleteUserRequest(WebServer* server, sqlite3* db) {
+  // Extract the user ID from the URL path
+  String userId = server->arg("id");
+
+  // Delete the user from the database
+  handleDeleteUser(server, db, userId);
+
+  // Format the response HTML
+  String html = "<html><body><h1>User Deleted</h1>";
+  html += "<p>The user was deleted successfully.</p>";
+  html += "</body></html>";
+
+  // Send the HTML response to the client
+  server->send(200, "text/html", html);
+}
+
+*/
 
 
 /*
