@@ -13,6 +13,33 @@ void handleGetUsers(WebServer* server, Database* db) {
 
 }
 /*
+// or this code 
+
+void handleGetUsers(WebServer* server, sqlite3* db) {
+  web_content = "<table style='width:100%'><tr><th>Id</th><th>Email</th><th>IsTeacher</th><th>DEL</th></tr>";
+  
+  sqlite3_stmt* stmt;
+  const char* sql = "SELECT * FROM user";
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  if (rc == SQLITE_OK) {
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      int id = sqlite3_column_int(stmt, 0);
+      const char* email = (const char*)sqlite3_column_text(stmt, 1);
+      int is_teacher = sqlite3_column_int(stmt, 2);
+      web_content += "<tr><td>" + String(id) + "</td><td>" + String(email) + "</td><td>" + String(is_teacher) + "</td><td>DEL</td></tr>";
+    }
+    web_content += "</table>";
+    sqlite3_finalize(stmt);
+  } else {
+    web_content = "FAIL";
+  }
+  
+  server->send(200, "text/html", web_content);
+}
+
+
+*/
+/*
 // Get a user by ID
 void handleGetUserById(WebServer* server, Database* db) {
   // Get the user ID from the URL parameter
