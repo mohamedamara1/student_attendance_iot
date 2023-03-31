@@ -79,9 +79,96 @@ void handleReadUser(WebServer* server, sqlite3* db, const String& userId) {
   // Finalize the prepared statement
   sqlite3_finalize(stmt);
 }
+
+void handleReadUserRequest(WebServer* server, sqlite3* db) {
+  // Extract the user ID from the URL path
+  String userId = server->arg("id");
+
+  // Read the user information from the database
+  User user;
+  if (!readUser(db, userId, user)) {
+    server->send(404, "text/html", "<p>User not found</p>");
+    return;
+  }
+
+  // Format the user information as HTML
+  String html = "<html><body><h1>User Information</h1>";
+  html += "<p><strong>ID:</strong> " + user.id + "</p>";
+  html += "<p><strong>Email:</strong> " + user.email + "</p>";
+  html += "<p><strong>Is Teacher:</strong> " + (user.isTeacher ? "Yes" : "No") + "</p>";
+  html += "</body></html>";
+
+  // Send the formatted HTML to the client
+  server->send(200, "text/html", html);
+}
+
+
 */
 
-//--------------------------------------------
+//----------------------------------------------Update user : HTML ---------------------------------
+/*
+void handleUpdateUser(WebServer* server, sqlite3* db, const String& userId) {
+  // Parse the request body as JSON
+  DynamicJsonDocument requestBody(1024);
+  DeserializationError error = deserializeJson(requestBody, server->arg("plain"));
+  if (error) {
+    server->send(400, "text/html", "<p>Bad Request</p>");
+    return;
+  }
+
+  // Extract the user's information from the request body
+  const char* email = requestBody["email"];
+  int is_teacher = requestBody["is_teacher"];
+
+  // Prepare the SQL statement
+  sqlite3_stmt* stmt;
+  const char* sql = "UPDATE user SET email=?, is_teacher=? WHERE id=?";
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  if (rc != SQLITE_OK) {
+    server->send(500, "text/html", "<p>Internal Server Error</p>");
+    return;
+  }
+
+  // Bind the user's information parameters to the prepared statement
+  rc = sqlite3_bind_text(stmt, 1, email, -1, SQLITE_TRANSIENT);
+  rc |= sqlite3_bind_int(stmt, 2, is_teacher);
+  rc |= sqlite3_bind_int(stmt, 3, userId.toInt());
+  if (rc != SQLITE_OK) {
+    sqlite3_finalize(stmt);
+    server->send(500, "text/html", "<p>Internal Server Error</p>");
+    return;
+  }
+
+  // Execute the prepared statement and check for errors
+  rc = sqlite3_step(stmt);
+  if (rc != SQLITE_DONE) {
+    sqlite3_finalize(stmt);
+    server->send(500, "text/html", "<p>Internal Server Error</p>");
+    return;
+  }
+
+  // Send a success response to the client with a status code of 200
+  String response = "<p>User updated successfully</p>";
+  server->send(200, "text/html", response);
+
+  // Finalize the prepared statement
+  sqlite3_finalize(stmt);
+}
+
+void handleUpdateUserRequest(WebServer* server, sqlite3* db) {
+  // Extract the user ID from the URL path
+  String userId = server->arg("id");
+
+  // Handle the update user request
+  handleUpdateUser(server, db, userId);
+
+  // Display the result to the user
+  String response = "<html><body><h1>User Updated</h1><p>The user was updated successfully.</p></body></html>";
+  server->send(200, "text/html", response);
+}
+
+
+*/
 
 
 
