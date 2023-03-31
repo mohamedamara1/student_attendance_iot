@@ -36,9 +36,56 @@ void handleGetUsers(WebServer* server, sqlite3* db) {
   
   server->send(200, "text/html", web_content);
 }
-
-
 */
+
+//---------------------------------Get user by ID : Format the user's information as an HTML table -----------------------------------------
+/*
+void handleReadUser(WebServer* server, sqlite3* db, const String& userId) {
+  // Prepare the SQL statement
+  sqlite3_stmt* stmt;
+  const char* sql = "SELECT * FROM user WHERE id=?";
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  if (rc != SQLITE_OK) {
+    server->send(500, "text/plain", "Internal Server Error");
+    return;
+  }
+
+  // Bind the user ID parameter to the prepared statement
+  rc = sqlite3_bind_int(stmt, 1, userId.toInt());
+  if (rc != SQLITE_OK) {
+    sqlite3_finalize(stmt);
+    server->send(500, "text/plain", "Internal Server Error");
+    return;
+  }
+
+  // Execute the prepared statement and retrieve the user's information
+  rc = sqlite3_step(stmt);
+  if (rc == SQLITE_ROW) {
+    int id = sqlite3_column_int(stmt, 0);
+    const char* email = (const char*)sqlite3_column_text(stmt, 1);
+    int is_teacher = sqlite3_column_int(stmt, 2);
+
+    // Format the user's information as an HTML table
+    String htmlResponse = "<table><tr><th>ID</th><th>Email</th><th>Is Teacher</th></tr>";
+    htmlResponse += "<tr><td>" + String(id) + "</td><td>" + String(email) + "</td><td>" + String(is_teacher) + "</td></tr>";
+    htmlResponse += "</table>";
+
+    // Send the HTML response to the client with a status code of 200
+    server->send(200, "text/html", htmlResponse);
+  } else {
+    server->send(404, "text/plain", "User not found");
+  }
+
+  // Finalize the prepared statement
+  sqlite3_finalize(stmt);
+}
+*/
+
+//--------------------------------------------
+
+
+
+
 /*
 // Get a user by ID
 void handleGetUserById(WebServer* server, Database* db) {
