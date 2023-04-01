@@ -46,8 +46,7 @@
 #include <WebServer.h>
 #include "credits.h"
 #include "web_page.h"
-#include "user.cpp"
-
+#include <ArduinoJson.h>
 
 WebServer server(80);
 
@@ -64,6 +63,7 @@ void insertRecord();
 void deleteRecord();
 void showRecords();
 void newRecordTable();
+
 String web_content = "";
 
 
@@ -90,8 +90,8 @@ void setup() {
   server.on("/newRecordTable",newRecordTable);
 
   //users
-  server.on("/users", HTTP_GET, handleGetUsers(server, &db);
-  //server.on("/users", HTTP_POST, handleCreateUser);
+  server.on("/users", HTTP_GET, handleGetUsers);
+  server.on("/users", HTTP_POST, handleCreateUser);
   //server.on("/users/:id", HTTP_GET, handleGetUser);
   //server.on("/users/:id", HTTP_PUT, handleUpdateUser);
   //server.on("/users/:id", HTTP_DELETE, handleDeleteUser);
@@ -131,7 +131,7 @@ void setup() {
   }
 
   // here we initiate the database connection
-  if (openDb("/spiffs/testdb.db", &db))
+  if (openDb("/spiffs/attendance_system.db", &db))
       return;
 }
 
@@ -279,5 +279,49 @@ void newRecordTable(){
    )rawliteral";
    server.send (200, "text/html", c_web_content );  
 }
+
+/*******************    USERS    *************************/
+
+// Get all users
+void handleGetUsers() {
+  web_content ="<table style='width:100%'><tr><th>Id</th><th>Email</th><th>IsTeacher</th><th>DEL</th></tr>";
+  String sql = "SELECT * FROM user";
+    if (db_exec(db, sql.c_str()) == SQLITE_OK) {  
+      web_content += "</table>";   
+    }
+  else 
+    web_content = "FAIL";  
+  server.send (200, "text/html", web_content );  
+
+}
+
+// Create a new user
+void handleCreateUser() {
+  web_content ="";
+  String sql = "";
+  StaticJsonDocument<250> jsonDocument;
+  if (server.hasArg("plain") == false) {
+  }
+  String body = server.arg("plain");
+  deserializeJson(jsonDocument, body);
+  //String id = jsonDocument["id"];
+
+  String email = jsonDocument["email"];
+  String password = jsonDocument["password"];
+  String isTeacher = jsonDocument["isTeacher"];
+  sql="insert into user(email,password,isTeacher) values('"+email+"','"+password+"','"+isTeacher+"')";
+  Serial.println(sql);
+  if (db_exec(db, sql.c_str()) == SQLITE_OK) {
+      web_content += "OK";   
+      Serial.println(web_content);
+      server.send (200, "text/html", web_content ); 
+    }
+  else {
+    web_content += "FAIL";  
+    server.send (400, "text/html", web_content ); 
+  }
+
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
