@@ -1,61 +1,15 @@
-/*
-    For more information, visit https://github.com/siara-cc/esp32_arduino_sqlite3_lib
-
-    Copyright (c) 2018, Siara Logics (cc)
-*/
-
-/*
-   Copyright (c) 2015, Majenko Technologies
-   All rights reserved.
-
-   Redistribution and use in source and binary forms, with or without modification,
-   are permitted provided that the following conditions are met:
-
- * * Redistributions of source code must retain the above copyright notice, this
-     list of conditions and the following disclaimer.
-
- * * Redistributions in binary form must reproduce the above copyright notice, this
-     list of conditions and the following disclaimer in the documentation and/or
-     other materials provided with the distribution.
-
- * * Neither the name of Majenko Technologies nor the names of its
-     contributors may be used to endorse or promote products derived from
-     this software without specific prior written permission.
-
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-   DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-   ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-   (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-   ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sqlite3.h>
-#include <SPI.h>
-#include <FS.h>
-#include "SPIFFS.h"
-
-#include <WiFi.h>
-#include <WebServer.h>
-#include "credits.h"
-#include "web_page.h"
-#include <ArduinoJson.h>
+#include "webserver_student_attendance.h"
 
 WebServer server(80);
-
 sqlite3 *db;
+
+
 const char* data = "Callback function called";
 char *zErrMsg = 0;
-int openDb(const char *, sqlite3 **);
-int db_exec(sqlite3 *, const char *);
 static int callback(void *data, int argc, char **argv, char **azColName);
+
 
 void handleRoot();
 void handleNotFound();
@@ -94,7 +48,7 @@ void setup() {
   server.on("/users", HTTP_POST, handleCreateUser);
   //server.on("/users/:id", HTTP_GET, handleGetUser);
   //server.on("/users/:id", HTTP_PUT, handleUpdateUser);
-  //server.on("/users/:id", HTTP_DELETE, handleDeleteUser);
+  server.on("/users", HTTP_DELETE, handleDeleteUser);
 
 
   
@@ -123,10 +77,8 @@ void setup() {
   File file = root.openNextFile();
  
   while(file){
- 
       Serial.print("FILE: ");
       Serial.println(file.name());
- 
       file = root.openNextFile();
   }
 
@@ -135,14 +87,9 @@ void setup() {
       return;
 }
 
-
-
 void loop() {
   server.handleClient();
 }
-
-
-
 
 
 /*--------------------------------------------------------*/
@@ -168,14 +115,6 @@ int db_exec(sqlite3 *db, const char *sql) {
    return rc;
 }
 /*--------------------------------------------------------*/
-/* static int callback(void *data, int argc, char **argv, char **azColName){
-   int i;
-   for (i = 0; i<argc; i++){
-       Serial.printf("%s = %s  ", azColName[i], argv[i] ? argv[i] : "NULL");
-   }
-   Serial.printf("\n");
-   return 0;
-} */
 
 static int callback(void *data, int argc, char **argv, char **azColName){
   web_content += "<tr>";
@@ -280,48 +219,7 @@ void newRecordTable(){
    server.send (200, "text/html", c_web_content );  
 }
 
-/*******************    USERS    *************************/
 
-// Get all users
-void handleGetUsers() {
-  web_content ="<table style='width:100%'><tr><th>Id</th><th>Email</th><th>IsTeacher</th><th>DEL</th></tr>";
-  String sql = "SELECT * FROM user";
-    if (db_exec(db, sql.c_str()) == SQLITE_OK) {  
-      web_content += "</table>";   
-    }
-  else 
-    web_content = "FAIL";  
-  server.send (200, "text/html", web_content );  
-
-}
-
-// Create a new user
-void handleCreateUser() {
-  web_content ="";
-  String sql = "";
-  StaticJsonDocument<250> jsonDocument;
-  if (server.hasArg("plain") == false) {
-  }
-  String body = server.arg("plain");
-  deserializeJson(jsonDocument, body);
-  //String id = jsonDocument["id"];
-
-  String email = jsonDocument["email"];
-  String password = jsonDocument["password"];
-  String isTeacher = jsonDocument["isTeacher"];
-  sql="insert into user(email,password,isTeacher) values('"+email+"','"+password+"','"+isTeacher+"')";
-  Serial.println(sql);
-  if (db_exec(db, sql.c_str()) == SQLITE_OK) {
-      web_content += "OK";   
-      Serial.println(web_content);
-      server.send (200, "text/html", web_content ); 
-    }
-  else {
-    web_content += "FAIL";  
-    server.send (400, "text/html", web_content ); 
-  }
-
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
