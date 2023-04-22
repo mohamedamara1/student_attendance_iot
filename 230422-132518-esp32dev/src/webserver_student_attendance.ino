@@ -64,6 +64,41 @@ void setup() {
   //lessons
   server.on("/lessons", HTTP_GET, handleGetLessons);
 
+  //server.on("/", handleRoot);
+
+   server.on("/", HTTP_GET, [](){
+    File file = SPIFFS.open("/index.html", "r");
+    if (!file) {
+      server.send(404, "text/plain", "File not found");
+      return;
+    }
+    server.streamFile(file, "text/html");
+    file.close();
+  });
+
+  server.on("/app.js", HTTP_GET, [](){
+    File file = SPIFFS.open("/app.js", "r");
+    if (!file) {
+      server.send(404, "text/plain", "File not found");
+      return;
+    }
+    server.streamFile(file, "text/javascript");
+    file.close();
+  });
+
+  server.on("/index.js", HTTP_GET, [](){
+    File file = SPIFFS.open("/index.js", "r");
+    if (!file) {
+      server.send(404, "text/plain", "File not found");
+      return;
+    }
+    server.streamFile(file, "text/javascript");
+    file.close();
+  });
+
+
+
+
 
   server.begin();
   int rc;
