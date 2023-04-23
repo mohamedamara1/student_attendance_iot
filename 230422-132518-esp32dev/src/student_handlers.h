@@ -1,6 +1,3 @@
-#ifndef USER_HANDLER_H
-#define USER_HANDLER_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sqlite3.h>
@@ -14,11 +11,8 @@ extern sqlite3 *db;
 
 extern int db_exec(sqlite3 *, const char *);
 
-void handleCreateLesson();
-void handleGetLesson();
-void handleUpdateLesson();
-void handleDeleteLesson();
-void handleGetLessons();
-
-
-#endif // USER_HANDLER_H
+void handleGetStudents();
+void handleCreateStudent();
+void handleDeleteStudent();
+void handleGetStudent();
+void handleUpdateStudent();

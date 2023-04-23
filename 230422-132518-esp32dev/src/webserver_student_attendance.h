@@ -16,6 +16,8 @@
 #include "class_handlers.h"
 #include "classroom_handlers.h"
 #include "course_handlers.h"
+#include "student_handlers.h"
+#include "teacher_handlers.h"
 
 
 

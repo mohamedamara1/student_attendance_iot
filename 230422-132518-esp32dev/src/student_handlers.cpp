@@ -1,22 +1,23 @@
-#include "user_handlers.h"
+#include "student_handlers.h"
 
-/*******************    USERS    *************************/
+/*******************    STUDENTS    *************************/
 
-// Get all users
-void handleGetUsers()
+// Get all students
+void handleGetStudents()
 {
   DynamicJsonDocument doc(1024);
   JsonArray array = doc.to<JsonArray>();
-  String sql = "SELECT * FROM user";
+  String sql = "SELECT * FROM student";
   sqlite3_stmt *stmt;
   if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
   {
     while (sqlite3_step(stmt) == SQLITE_ROW)
     {
-      JsonObject obj = array.createNestedObject();
-      obj["id"] = sqlite3_column_int(stmt, 0);
-      obj["email"] = sqlite3_column_text(stmt, 1);
-      obj["isTeacher"] = sqlite3_column_int(stmt, 3);
+        JsonObject obj = array.createNestedObject();
+        obj["id"] = sqlite3_column_int(stmt, 0);
+        obj["name"] = sqlite3_column_text(stmt, 1);
+        obj["userId"] = sqlite3_column_int(stmt, 2);
+        obj["classId"] = sqlite3_column_int(stmt, 3);
     }
     String jsonStr;
     serializeJson(doc, jsonStr);
@@ -28,8 +29,8 @@ void handleGetUsers()
   }
 }
 
-// Create a new user
-void handleCreateUser()
+// Create a new student
+void handleCreateStudent()
 {
   String sql = "";
   StaticJsonDocument<250> jsonDocument;
@@ -40,19 +41,19 @@ void handleCreateUser()
   deserializeJson(jsonDocument, body);
   // String id = jsonDocument["id"];
 
-  String email = jsonDocument["email"];
-  String password = jsonDocument["password"];
-  String isTeacher = jsonDocument["isTeacher"];
-  sql = "insert into user(email,password,isTeacher) values('" + email + "','" + password + "','" + isTeacher + "')";
+  String name = jsonDocument["name"];
+  int userId = jsonDocument["userId"];
+  int classId = jsonDocument["classId"];
+  sql = "insert into student(name,user_id,class_id) values('" + name + "','" + userId + "','" + classId + "')";
   Serial.println(sql);
   if (db_exec(db, sql.c_str()) == SQLITE_OK)
   {
-    // Get the id of the newly created user
+    // Get the id of the newly created student
     int id = sqlite3_last_insert_rowid(db);
 
     // Create JSON response
     StaticJsonDocument<100> jsonResponse;
-    jsonResponse["message"] = "User created successfully";
+    jsonResponse["message"] = "Student created successfully";
     jsonResponse["id"] = id;
 
     String jsonStr;
@@ -65,20 +66,20 @@ void handleCreateUser()
   }
 }
 
-void handleDeleteUser()
+void handleDeleteStudent()
 {
   String sql = "";
   int id = server.arg("id").toInt();
   // int id = server.pathArg(0).toInt();
   Serial.println("delete");
 
-  sql = "delete from user where id=" + String(id);
+  sql = "delete from student where id=" + String(id);
   Serial.println(sql);
   if (db_exec(db, sql.c_str()) == SQLITE_OK)
   {
     // Create JSON response
     StaticJsonDocument<100> jsonResponse;
-    jsonResponse["message"] = "User deleted successfully";
+    jsonResponse["message"] = "Student deleted successfully";
     jsonResponse["id"] = id;
 
     String jsonStr;
@@ -87,16 +88,17 @@ void handleDeleteUser()
   }
   else
   {
-    server.send(400, "text/plain", "Failed to delete user");
+    server.send(400, "text/plain", "Failed to delete student");
   }
 }
-void handleGetUser()
+
+void handleGetStudent()
 {
   String sql = "";
   int id = server.arg("id").toInt();
   // int id = server.pathArg(0).toInt();
 
-  sql = "select * from user where id=" + String(id);
+  sql = "select * from student where id=" + String(id);
   sqlite3_stmt *stmt;
 
   Serial.println(sql);
@@ -105,8 +107,9 @@ void handleGetUser()
     // Create JSON response
     StaticJsonDocument<100> jsonResponse;
     jsonResponse["id"] = id;
-    jsonResponse["email"] = sqlite3_column_text(stmt, 1);
-    jsonResponse["isTeacher"] = sqlite3_column_int(stmt, 3);
+    jsonResponse["name"] = sqlite3_column_text(stmt, 1);
+    jsonResponse["userId"] = sqlite3_column_int(stmt, 2);
+    jsonResponse["classId"] = sqlite3_column_int(stmt, 3);
 
     String jsonStr;
     serializeJson(jsonResponse, jsonStr);
@@ -114,16 +117,15 @@ void handleGetUser()
   }
   else
   {
-    server.send(400, "text/plain", "Failed to get user");
+    server.send(400, "text/plain", "Failed to get student");
   }
 }
 
-// Update an existing user
-void handleUpdateUser()
+// Update an existing student
+void handleUpdateStudent()
 {
   String sql = "";
   int id = server.arg("id").toInt();
-  // int id = server.pathArg(0).toInt();
 
   // Parse JSON request body
   StaticJsonDocument<250> jsonDocument;
@@ -136,20 +138,20 @@ void handleUpdateUser()
   deserializeJson(jsonDocument, body);
 
   // Retrieve fields from JSON request body
-  String email = jsonDocument["email"];
-  String password = jsonDocument["password"];
-  String isTeacher = jsonDocument["isTeacher"];
+  String name = jsonDocument["name"];
+  String userId = jsonDocument["userId"];
+  String classId = jsonDocument["classId"];
 
-  // Build SQL query to update user
-  sql = "update user set ";
-  if (!email.isEmpty()) {
-    sql += "email='" + email + "',";
+  // Build SQL query to update student
+  sql = "update student set ";
+  if (!name.isEmpty()) {
+    sql += "name='" + name + "',";
   }
-  if (!password.isEmpty()) {
-    sql += "password='" + password + "',";
+  if (!userId.isEmpty()) {
+    sql += "user_id='" + userId + "',";
   }
-  if (!isTeacher.isEmpty()) {
-    sql += "isTeacher='" + isTeacher + "',";
+  if (!classId.isEmpty()) {
+    sql += "class_id='" + classId + "',";
   }
   sql.remove(sql.length() - 1); // remove trailing comma
   sql += " where id=" + String(id);
@@ -159,7 +161,7 @@ void handleUpdateUser()
   {
     // Create JSON response
     StaticJsonDocument<100> jsonResponse;
-    jsonResponse["message"] = "User updated successfully";
+    jsonResponse["message"] = "Student updated successfully";
     jsonResponse["id"] = id;
 
     String jsonStr;
@@ -168,6 +170,6 @@ void handleUpdateUser()
   }
   else
   {
-    server.send(400, "text/plain", "Failed to update user");
+    server.send(400, "text/plain", "Failed to update student");
   }
 }

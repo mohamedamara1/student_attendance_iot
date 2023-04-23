@@ -1,22 +1,22 @@
-#include "user_handlers.h"
+#include "teacher_handlers.h"
 
-/*******************    USERS    *************************/
+/*******************    TEACHERS    *************************/
 
-// Get all users
-void handleGetUsers()
+// Get all teachers
+void handleGetTeachers()
 {
   DynamicJsonDocument doc(1024);
   JsonArray array = doc.to<JsonArray>();
-  String sql = "SELECT * FROM user";
+  String sql = "SELECT * FROM teacher";
   sqlite3_stmt *stmt;
   if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
   {
     while (sqlite3_step(stmt) == SQLITE_ROW)
     {
-      JsonObject obj = array.createNestedObject();
-      obj["id"] = sqlite3_column_int(stmt, 0);
-      obj["email"] = sqlite3_column_text(stmt, 1);
-      obj["isTeacher"] = sqlite3_column_int(stmt, 3);
+        JsonObject obj = array.createNestedObject();
+        obj["id"] = sqlite3_column_int(stmt, 0);
+        obj["name"] = sqlite3_column_text(stmt, 1);
+        obj["userId"] = sqlite3_column_int(stmt, 2);
     }
     String jsonStr;
     serializeJson(doc, jsonStr);
@@ -28,8 +28,8 @@ void handleGetUsers()
   }
 }
 
-// Create a new user
-void handleCreateUser()
+// Create a new teacher
+void handleCreateTeacher()
 {
   String sql = "";
   StaticJsonDocument<250> jsonDocument;
@@ -40,19 +40,18 @@ void handleCreateUser()
   deserializeJson(jsonDocument, body);
   // String id = jsonDocument["id"];
 
-  String email = jsonDocument["email"];
-  String password = jsonDocument["password"];
-  String isTeacher = jsonDocument["isTeacher"];
-  sql = "insert into user(email,password,isTeacher) values('" + email + "','" + password + "','" + isTeacher + "')";
+  String name = jsonDocument["name"];
+  int userId = jsonDocument["userId"];
+  sql = "insert into teacher(name,user_id) values('" + name + "','" + userId + "')";
   Serial.println(sql);
   if (db_exec(db, sql.c_str()) == SQLITE_OK)
   {
-    // Get the id of the newly created user
+    // Get the id of the newly created teacher
     int id = sqlite3_last_insert_rowid(db);
 
     // Create JSON response
     StaticJsonDocument<100> jsonResponse;
-    jsonResponse["message"] = "User created successfully";
+    jsonResponse["message"] = "Teacher created successfully";
     jsonResponse["id"] = id;
 
     String jsonStr;
@@ -61,24 +60,24 @@ void handleCreateUser()
   }
   else
   {
-    server.send(400, "text/plain", "Failed to create user");
+    server.send(400, "text/plain", "Failed to create teacher");
   }
 }
 
-void handleDeleteUser()
+void handleDeleteTeacher()
 {
   String sql = "";
   int id = server.arg("id").toInt();
   // int id = server.pathArg(0).toInt();
   Serial.println("delete");
 
-  sql = "delete from user where id=" + String(id);
+  sql = "delete from teacher where id=" + String(id);
   Serial.println(sql);
   if (db_exec(db, sql.c_str()) == SQLITE_OK)
   {
     // Create JSON response
     StaticJsonDocument<100> jsonResponse;
-    jsonResponse["message"] = "User deleted successfully";
+    jsonResponse["message"] = "Teacher deleted successfully";
     jsonResponse["id"] = id;
 
     String jsonStr;
@@ -87,16 +86,17 @@ void handleDeleteUser()
   }
   else
   {
-    server.send(400, "text/plain", "Failed to delete user");
+    server.send(400, "text/plain", "Failed to delete teacher");
   }
 }
-void handleGetUser()
+
+void handleGetTeacher()
 {
   String sql = "";
   int id = server.arg("id").toInt();
   // int id = server.pathArg(0).toInt();
 
-  sql = "select * from user where id=" + String(id);
+  sql = "select * from teacher where id=" + String(id);
   sqlite3_stmt *stmt;
 
   Serial.println(sql);
@@ -105,8 +105,8 @@ void handleGetUser()
     // Create JSON response
     StaticJsonDocument<100> jsonResponse;
     jsonResponse["id"] = id;
-    jsonResponse["email"] = sqlite3_column_text(stmt, 1);
-    jsonResponse["isTeacher"] = sqlite3_column_int(stmt, 3);
+    jsonResponse["name"] = sqlite3_column_text(stmt, 1);
+    jsonResponse["userId"] = sqlite3_column_int(stmt, 2);
 
     String jsonStr;
     serializeJson(jsonResponse, jsonStr);
@@ -114,16 +114,14 @@ void handleGetUser()
   }
   else
   {
-    server.send(400, "text/plain", "Failed to get user");
+    server.send(400, "text/plain", "Failed to get teacher");
   }
 }
 
-// Update an existing user
-void handleUpdateUser()
+void handleUpdateTeacher()
 {
   String sql = "";
   int id = server.arg("id").toInt();
-  // int id = server.pathArg(0).toInt();
 
   // Parse JSON request body
   StaticJsonDocument<250> jsonDocument;
@@ -136,20 +134,16 @@ void handleUpdateUser()
   deserializeJson(jsonDocument, body);
 
   // Retrieve fields from JSON request body
-  String email = jsonDocument["email"];
-  String password = jsonDocument["password"];
-  String isTeacher = jsonDocument["isTeacher"];
+  String name = jsonDocument["name"];
+  int userId = jsonDocument["userId"];
 
-  // Build SQL query to update user
-  sql = "update user set ";
-  if (!email.isEmpty()) {
-    sql += "email='" + email + "',";
+  // Build SQL query to update teacher
+  sql = "update teacher set ";
+  if (!name.isEmpty()) {
+    sql += "name='" + name + "',";
   }
-  if (!password.isEmpty()) {
-    sql += "password='" + password + "',";
-  }
-  if (!isTeacher.isEmpty()) {
-    sql += "isTeacher='" + isTeacher + "',";
+  if (userId > 0) {
+    sql += "userId=" + String(userId) + ",";
   }
   sql.remove(sql.length() - 1); // remove trailing comma
   sql += " where id=" + String(id);
@@ -159,7 +153,7 @@ void handleUpdateUser()
   {
     // Create JSON response
     StaticJsonDocument<100> jsonResponse;
-    jsonResponse["message"] = "User updated successfully";
+    jsonResponse["message"] = "Teacher updated successfully";
     jsonResponse["id"] = id;
 
     String jsonStr;
@@ -168,6 +162,6 @@ void handleUpdateUser()
   }
   else
   {
-    server.send(400, "text/plain", "Failed to update user");
+    server.send(400, "text/plain", "Failed to update teacher");
   }
 }

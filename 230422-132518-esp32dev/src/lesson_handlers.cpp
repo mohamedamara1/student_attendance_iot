@@ -31,3 +31,185 @@ DynamicJsonDocument doc(1024);
     server.send(400, "text/html", "FAIL");
   }
 }
+
+// Create a new lesson
+void handleCreateLesson()
+{
+  String sql = "";
+  
+  // Parse JSON request body
+  StaticJsonDocument<500> jsonDocument;
+  if (server.hasArg("plain") == false)
+  {
+    server.send(400, "text/plain", "Missing request body");
+    return;
+  }
+  String body = server.arg("plain");
+  deserializeJson(jsonDocument, body);
+
+  // Retrieve fields from JSON request body
+  int courseId = jsonDocument["course_id"];
+  int classId = jsonDocument["class_id"];
+  int teacherId = jsonDocument["teacher_id"];
+  int classroomId = jsonDocument["classroom_id"];
+  String date = jsonDocument["date"];
+  String startTime = jsonDocument["start_time"];
+  String endTime = jsonDocument["end_time"];
+
+  // Build SQL query to create lesson
+  sql = "insert into lesson (course_id, class_id, teacher_id, classroom_id, date, start_time, end_time) ";
+  sql += "values (" + String(courseId) + ", " + String(classId) + ", " + String(teacherId) + ", " + String(classroomId) + ", '" + date + "', '" + startTime + "', '" + endTime + "')";
+
+  Serial.println(sql);
+  if (db_exec(db, sql.c_str()) == SQLITE_OK)
+  {
+    // Get the id of the newly created user
+    int id = sqlite3_last_insert_rowid(db);
+
+    // Create JSON response
+    StaticJsonDocument<100> jsonResponse;
+    jsonResponse["message"] = "Lesson created successfully";
+    jsonResponse["id"] = id;
+
+    String jsonStr;
+    serializeJson(jsonResponse, jsonStr);
+    server.send(200, "application/json", jsonStr);
+  }
+  else
+  {
+    server.send(400, "text/plain", "Failed to create lesson");
+  }
+}
+
+// Get a lesson by ID
+void handleGetLesson()
+{
+  int id = server.arg("id").toInt();
+  String sql = "select * from lesson where id=" + String(id);
+
+  Serial.println(sql);
+  sqlite3_stmt* stmt;
+  if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+  {
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+      // Create JSON response
+      StaticJsonDocument<500> jsonResponse;
+      jsonResponse["id"] = sqlite3_column_int(stmt, 0);
+      jsonResponse["course_id"] = sqlite3_column_int(stmt, 1);
+      jsonResponse["class_id"] = sqlite3_column_int(stmt, 2);
+      jsonResponse["teacher_id"] = sqlite3_column_int(stmt, 3);
+      jsonResponse["classroom_id"] = sqlite3_column_int(stmt, 4);
+      jsonResponse["date"] = String(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5)));
+      jsonResponse["start_time"] = String(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6)));
+      jsonResponse["end_time"] = String(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 7)));
+
+      String jsonStr;
+      serializeJson(jsonResponse, jsonStr);
+      server.send(200, "application/json", jsonStr);
+    }
+    else
+    {
+      server.send(404, "text/plain", "Lesson not found");
+    }
+    sqlite3_finalize(stmt);
+  }
+  else
+  {
+    server.send(400, "text/plain", "Failed to read lesson");
+  }
+}
+// Update an existing lesson
+void handleUpdateLesson()
+{
+  String sql = "";
+  int id = server.arg("id").toInt();
+  
+  // Parse JSON request body
+  StaticJsonDocument<250> jsonDocument;
+  if (server.hasArg("plain") == false)
+  {
+    server.send(400, "text/plain", "Missing request body");
+    return;
+  }
+  String body = server.arg("plain");
+  deserializeJson(jsonDocument, body);
+
+  // Retrieve fields from JSON request body
+  int course_id = jsonDocument["course_id"];
+  int class_id = jsonDocument["class_id"];
+  int teacher_id = jsonDocument["teacher_id"];
+  int classroom_id = jsonDocument["classroom_id"];
+  String date = jsonDocument["date"];
+  String start_time = jsonDocument["start_time"];
+  String end_time = jsonDocument["end_time"];
+
+  // Build SQL query to update lesson
+  sql = "update lesson set ";
+  if (course_id != 0) {
+    sql += "course_id=" + String(course_id) + ",";
+  }
+  if (class_id != 0) {
+    sql += "class_id=" + String(class_id) + ",";
+  }
+  if (teacher_id != 0) {
+    sql += "teacher_id=" + String(teacher_id) + ",";
+  }
+  if (classroom_id != 0) {
+    sql += "classroom_id=" + String(classroom_id) + ",";
+  }
+  if (!date.isEmpty()) {
+    sql += "date='" + date + "',";
+  }
+  if (!start_time.isEmpty()) {
+    sql += "start_time='" + start_time + "',";
+  }
+  if (!end_time.isEmpty()) {
+    sql += "end_time='" + end_time + "',";
+  }
+  sql.remove(sql.length() - 1); // remove trailing comma
+  sql += " where id=" + String(id);
+
+  Serial.println(sql);
+  if (db_exec(db, sql.c_str()) == SQLITE_OK)
+  {
+    // Create JSON response
+    StaticJsonDocument<100> jsonResponse;
+    jsonResponse["message"] = "Lesson updated successfully";
+    jsonResponse["id"] = id;
+
+    String jsonStr;
+    serializeJson(jsonResponse, jsonStr);
+    server.send(200, "application/json", jsonStr);
+  }
+  else
+  {
+    server.send(400, "text/plain", "Failed to update lesson");
+  }
+}
+
+// Delete a lesson
+void handleDeleteLesson()
+{
+  int id = server.arg("id").toInt();
+
+  // Build SQL query to delete lesson
+  String sql = "delete from lesson where id=" + String(id);
+
+  Serial.println(sql);
+  if (db_exec(db, sql.c_str()) == SQLITE_OK)
+  {
+    // Create JSON response
+    StaticJsonDocument<100> jsonResponse;
+    jsonResponse["message"] = "Lesson deleted successfully";
+    jsonResponse["id"] = id;
+
+    String jsonStr;
+    serializeJson(jsonResponse, jsonStr);
+    server.send(200, "application/json", jsonStr);
+  }
+  else
+  {
+    server.send(400, "text/plain", "Failed to delete lesson");
+  }
+}

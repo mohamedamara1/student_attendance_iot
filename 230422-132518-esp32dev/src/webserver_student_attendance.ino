@@ -40,14 +40,30 @@ void setup() {
   //users
   server.on("/users", HTTP_GET, handleGetUsers);
   server.on("/users", HTTP_POST, handleCreateUser);
-  //server.on("/users/:id", HTTP_GET, handleGetUser);
-  //server.on("/users/:id", HTTP_PUT, handleUpdateUser);
+  server.on("/users", HTTP_PUT, handleUpdateUser);
   server.on("/users", HTTP_DELETE, handleDeleteUser);
+  //server.on("/users", HTTP_GET, handleGetUser);
+
+  //students
+  server.on("/students", HTTP_GET, handleGetStudents);
+  server.on("/students", HTTP_POST, handleCreateStudent);
+  server.on("/students", HTTP_PUT, handleUpdateStudent);
+  server.on("/students", HTTP_DELETE, handleDeleteStudent);
+  //server.on("/students", HTTP_GET, handleGetStudent);
+
+  //teachers
+  server.on("/teachers", HTTP_GET, handleGetTeachers);
+  server.on("/teachers", HTTP_POST, handleCreateTeacher);
+  server.on("/teachers", HTTP_PUT, handleUpdateTeacher);
+  server.on("/teachers", HTTP_DELETE, handleDeleteTeacher);
+  //server.on("/teachers", HTTP_GET, handleGetTeacher);
+
   //attendances
   //server.on("/attendances", HTTP_GET, handleGetAttendances);
  // server.on("/attendances", HTTP_DELETE, handleGetAttendances);
   server.on("/attendances", HTTP_PUT, handleUpdateAttendance);
   //server.on("/attendances", HTTP_CREATE, handleGetAttendances);
+
   //classes
   server.on("/classes", HTTP_GET, handleGetClasses);
   server.on("/classes", HTTP_POST, handleCreateClass);
@@ -57,10 +73,12 @@ void setup() {
   server.on("/classrooms", HTTP_POST, handleCreateClassroom);
   server.on("/classrooms", HTTP_GET, handleGetClassrooms);
   server.on("/classrooms", HTTP_DELETE, handleDeleteClassroom);
+
   //courses
   server.on("/courses", HTTP_POST, handleCreateCourse);
   server.on("/courses", HTTP_GET, handleGetCourses);
   server.on("/courses", HTTP_DELETE, handleDeleteCourse);
+  
   //lessons
   server.on("/lessons", HTTP_GET, handleGetLessons);
 

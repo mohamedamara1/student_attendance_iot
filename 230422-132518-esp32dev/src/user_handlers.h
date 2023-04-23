@@ -14,3 +14,5 @@ extern int db_exec(sqlite3 *, const char *);
 void handleGetUsers();
 void handleCreateUser();
 void handleDeleteUser();
+void handleGetUser();
+void handleUpdateUser();
