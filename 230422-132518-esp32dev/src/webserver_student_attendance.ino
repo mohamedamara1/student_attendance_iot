@@ -86,8 +86,6 @@ void setup() {
   server.on("/filesystem/listFiles", HTTP_GET, handleListFiles);
   server.on("/filesystem/deleteFile", HTTP_DELETE, handleDeleteFile);
 
-  //server.on("/", handleRoot);
-
   server.on("/", HTTP_GET, [](){
     File indexFile = SPIFFS.open("/index.html", "r");
     if (!indexFile) {
@@ -125,7 +123,6 @@ void setup() {
               server.serveStatic(fileName.c_str(), SPIFFS, fileName.c_str());
           }
       }
-
       file = rootOne.openNextFile();
   }
   
