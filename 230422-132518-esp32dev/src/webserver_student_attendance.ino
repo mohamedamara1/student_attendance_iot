@@ -11,6 +11,7 @@ char *zErrMsg = 0;
 static int callback(void *data, int argc, char **argv, char **azColName);
 
 
+bool mountSPIFFS();
 void handleRoot();
 void handleNotFound();
 void insertRecord();
@@ -78,45 +79,56 @@ void setup() {
   server.on("/courses", HTTP_POST, handleCreateCourse);
   server.on("/courses", HTTP_GET, handleGetCourses);
   server.on("/courses", HTTP_DELETE, handleDeleteCourse);
-  
+
   //lessons
   server.on("/lessons", HTTP_GET, handleGetLessons);
 
+  server.on("/filesystem/listFiles", HTTP_GET, handleListFiles);
+  server.on("/filesystem/deleteFile", HTTP_DELETE, handleDeleteFile);
+
   //server.on("/", handleRoot);
 
-   server.on("/", HTTP_GET, [](){
-    File file = SPIFFS.open("/index.html", "r");
-    if (!file) {
+  server.on("/", HTTP_GET, [](){
+    File indexFile = SPIFFS.open("/index.html", "r");
+    if (!indexFile) {
       server.send(404, "text/plain", "File not found");
       return;
     }
-    server.streamFile(file, "text/html");
-    file.close();
+    server.streamFile(indexFile, "text/html");
+    indexFile.close();
   });
+  
+  mountSPIFFS();
 
-  server.on("/app.js", HTTP_GET, [](){
-    File file = SPIFFS.open("/app.js", "r");
-    if (!file) {
-      server.send(404, "text/plain", "File not found");
-      return;
-    }
-    server.streamFile(file, "text/javascript");
-    file.close();
-  });
+  File rootOne = SPIFFS.open("/");
+  File file = rootOne.openNextFile();
 
-  server.on("/index.js", HTTP_GET, [](){
-    File file = SPIFFS.open("/index.js", "r");
-    if (!file) {
-      server.send(404, "text/plain", "File not found");
-      return;
-    }
-    server.streamFile(file, "text/javascript");
-    file.close();
-  });
+  while(file){
+      String fileName = file.path();
+      if (fileName.endsWith(".html") || fileName.endsWith(".css") || fileName.endsWith(".js")) {
+          Serial.println(fileName +  " preparing to serve");
+          String contentType = "text/plain";
+          if (fileName.endsWith(".html")) {
+              contentType = "text/html";
+          } else if (fileName.endsWith(".css")) {
+              contentType = "text/css";
+          } else if (fileName.endsWith(".js")) {
+              contentType = "application/javascript";
+          }
 
+          // Check if file is in the 'assets' subdirectory
+          if (fileName.startsWith("/assets/")) {
+              Serial.println(fileName + "assets");
+              server.serveStatic(fileName.c_str(), SPIFFS, fileName.c_str());
+          } else if (fileName == "/index.html") {
+              Serial.println(fileName + "html");
+              server.serveStatic(fileName.c_str(), SPIFFS, fileName.c_str());
+          }
+      }
 
-
-
+      file = rootOne.openNextFile();
+  }
+  
 
   server.begin();
   int rc;
@@ -133,12 +145,13 @@ void setup() {
   }
 
   File root = SPIFFS.open("/");
-  File file = root.openNextFile();
+  File fileTwo = root.openNextFile();
  
-  while(file){
+  while(fileTwo){
       Serial.print("FILE: ");
-      Serial.println(file.name());
-      file = root.openNextFile();
+      Serial.println(fileTwo.path());
+
+      fileTwo = root.openNextFile();
   }
 
   // here we initiate the database connection
@@ -185,6 +198,15 @@ static int callback(void *data, int argc, char **argv, char **azColName){
   web_content += argv[1];
   web_content += "')\">Delete</button></td></tr>"; 
   return 0;
+}
+
+bool mountSPIFFS() {
+  if (!SPIFFS.begin()) {
+    Serial.println("Failed to mount SPIFFS file system");
+    return false;
+  }
+  Serial.println("SPIFFS file system mounted");
+  return true;
 }
 
 /*--------------------------------------------------------*/
