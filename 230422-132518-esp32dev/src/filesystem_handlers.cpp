@@ -1,6 +1,5 @@
 #include "filesystem_handlers.h"
 
-
 // List all files in SPIFFS and return as JSON
 void handleListFiles()
 {
@@ -27,6 +26,7 @@ void handleListFiles()
 void handleDeleteFile()
 {
   String filename = server.arg("filename");
+  Serial.println("Trying to delete file : " + filename);
   if (SPIFFS.remove(filename))
   {
     // Create JSON response

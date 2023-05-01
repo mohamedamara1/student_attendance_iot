@@ -11,8 +11,7 @@ import {
   Progress,
 } from "@material-tailwind/react";
 
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import { authorsTableData, projectsTableData, lessonsTableData, lessonsTableColumns, attendancesTableColumns, attendancesTableData } from "@/data";
+import { lessonsTableData, lessonsTableColumns, attendancesTableColumns, attendancesTableData } from "@/data";
 import Table from "@/widgets/table";
 
 export function Tables() {
