@@ -90,7 +90,7 @@ void setup()
     indexFile.close(); });
 
   mountSPIFFS();
-  Serial.print("Total kilobytes: ");
+  Serial.print("Totall kilobytes: ");
   Serial.println(SPIFFS.totalBytes() / 1024.0);
 
   Serial.print("Used kilobytes: ");
