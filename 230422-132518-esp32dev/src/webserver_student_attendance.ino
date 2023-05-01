@@ -104,7 +104,6 @@ void setup() {
   while(file){
       String fileName = file.path();
       if (fileName.endsWith(".html") || fileName.endsWith(".css") || fileName.endsWith(".js")) {
-          Serial.println(fileName +  " preparing to serve");
           String contentType = "text/plain";
           if (fileName.endsWith(".html")) {
               contentType = "text/html";
@@ -119,7 +118,6 @@ void setup() {
               Serial.println(fileName + "assets");
               server.serveStatic(fileName.c_str(), SPIFFS, fileName.c_str());
           } else if (fileName == "/index.html") {
-              Serial.println(fileName + "html");
               server.serveStatic(fileName.c_str(), SPIFFS, fileName.c_str());
           }
       }
@@ -146,7 +144,9 @@ void setup() {
  
   while(fileTwo){
       Serial.print("FILE: ");
-      Serial.println(fileTwo.path());
+      Serial.print(fileTwo.path());
+      Serial.println(" " + fileTwo.size());
+
 
       fileTwo = root.openNextFile();
   }

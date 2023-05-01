@@ -1,1 +1,28 @@
 /build
+# Logs
+react_front/logs
+react_front/*.log
+react_front/npm-debug.log*
+react_front/yarn-debug.log*
+react_front/yarn-error.log*
+react_front/pnpm-debug.log*
+react_front/lerna-debug.log*
+react_front/pnpm-lock.yaml
+react_front/package-lock.json
+react_front/yarn.lock
+
+react_front/node_modules
+react_front/dist
+react_front/dist-ssr
+react_front/*.local
+
+# Editor directories and files
+react_front/.vscode/*
+!react_front/.vscode/extensions.json
+react_front/.idea
+react_front.DS_Store
+react_front/*.suo
+react_front/*.ntvs*
+react_front/*.njsproj
+react_front/*.sln
+react_front/*.sw?
