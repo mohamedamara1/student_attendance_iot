@@ -49,18 +49,22 @@ export function SignIn() {
       const response = {
          ok: true,
          json: async () => (
-          { userId: '123', userRole: 'teacher' }) };
+          {  userId: 1,
+            email: "teacher@test.com",
+            userRole: "teacher"
+          }) };
 
       if (!response.ok) {
         throw new Error('Sign-in failed');
       }
   
       const data = await response.json();
+      console.log(data);
       // TODO: Handle response data as needed (e.g. store token in local storage).
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('userRole', data.userRole);
   
-      switch (data.userRole) {
+  /*    switch (data.userRole) {
         case 'admin':
           navigateTo('/admin');
           break;
@@ -73,7 +77,8 @@ export function SignIn() {
         default:
           console.error("error");
           break;
-      }
+      }*/
+      navigateTo("/dashboard/home");
     } catch (error) {
       console.error(error);
       // TODO: Display error message to user (e.g. using a toast message).

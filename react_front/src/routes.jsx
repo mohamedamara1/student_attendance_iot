@@ -30,12 +30,16 @@ export const routes = [
         name: "tables",
         path: "/tables",
         element: <Tables />,
+        allowedRoles: ["teacher", "admin"]
+
       },
       {
         icon: <TableCellsIcon {...icon} />,
         name: "lesson",
         path: "/lesson",
         element: <LessonPage />,
+        allowedRoles: ["student", "admin"]
+
       },
     ],
   },
