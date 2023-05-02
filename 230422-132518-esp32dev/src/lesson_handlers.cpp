@@ -1,9 +1,9 @@
 #include "lesson_handlers.h"
 
-
 // Get all lessons
-void handleGetLessons() {
-DynamicJsonDocument doc(1024);
+void handleGetLessons()
+{
+  DynamicJsonDocument doc(1024);
   JsonArray array = doc.to<JsonArray>();
   String sql = "SELECT * FROM lesson";
   sqlite3_stmt *stmt;
@@ -11,16 +11,16 @@ DynamicJsonDocument doc(1024);
   {
     while (sqlite3_step(stmt) == SQLITE_ROW)
     {
-        JsonObject obj = array.createNestedObject();
-        obj["id"] = sqlite3_column_int(stmt, 0);
-        obj["course_id"] = sqlite3_column_int(stmt, 1);
-        obj["class_id"] = sqlite3_column_int(stmt, 2);
-        obj["teacher_id"] = sqlite3_column_int(stmt, 3);
-        obj["classroom_id"] = sqlite3_column_int(stmt, 4);
-        obj["date"] = sqlite3_column_text(stmt, 5);
-        obj["start_time"] = sqlite3_column_text(stmt, 6);        obj["start_time"] = sqlite3_column_int(stmt, 3);
-        obj["end_time"] = sqlite3_column_text(stmt, 7);
-
+      JsonObject obj = array.createNestedObject();
+      obj["id"] = sqlite3_column_int(stmt, 0);
+      obj["course_id"] = sqlite3_column_int(stmt, 1);
+      obj["class_id"] = sqlite3_column_int(stmt, 2);
+      obj["teacher_id"] = sqlite3_column_int(stmt, 3);
+      obj["classroom_id"] = sqlite3_column_int(stmt, 4);
+      obj["date"] = sqlite3_column_text(stmt, 5);
+      obj["start_time"] = sqlite3_column_text(stmt, 6);
+      obj["start_time"] = sqlite3_column_int(stmt, 3);
+      obj["end_time"] = sqlite3_column_text(stmt, 7);
     }
     String jsonStr;
     serializeJson(doc, jsonStr);
@@ -36,7 +36,7 @@ DynamicJsonDocument doc(1024);
 void handleCreateLesson()
 {
   String sql = "";
-  
+
   // Parse JSON request body
   StaticJsonDocument<500> jsonDocument;
   if (server.hasArg("plain") == false)
@@ -88,7 +88,7 @@ void handleGetLesson()
   String sql = "select * from lesson where id=" + String(id);
 
   Serial.println(sql);
-  sqlite3_stmt* stmt;
+  sqlite3_stmt *stmt;
   if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
   {
     if (sqlite3_step(stmt) == SQLITE_ROW)
@@ -100,9 +100,9 @@ void handleGetLesson()
       jsonResponse["class_id"] = sqlite3_column_int(stmt, 2);
       jsonResponse["teacher_id"] = sqlite3_column_int(stmt, 3);
       jsonResponse["classroom_id"] = sqlite3_column_int(stmt, 4);
-      jsonResponse["date"] = String(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5)));
-      jsonResponse["start_time"] = String(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6)));
-      jsonResponse["end_time"] = String(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 7)));
+      jsonResponse["date"] = String(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5)));
+      jsonResponse["start_time"] = String(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6)));
+      jsonResponse["end_time"] = String(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7)));
 
       String jsonStr;
       serializeJson(jsonResponse, jsonStr);
@@ -124,7 +124,7 @@ void handleUpdateLesson()
 {
   String sql = "";
   int id = server.arg("id").toInt();
-  
+
   // Parse JSON request body
   StaticJsonDocument<250> jsonDocument;
   if (server.hasArg("plain") == false)
@@ -146,25 +146,32 @@ void handleUpdateLesson()
 
   // Build SQL query to update lesson
   sql = "update lesson set ";
-  if (course_id != 0) {
+  if (course_id != 0)
+  {
     sql += "course_id=" + String(course_id) + ",";
   }
-  if (class_id != 0) {
+  if (class_id != 0)
+  {
     sql += "class_id=" + String(class_id) + ",";
   }
-  if (teacher_id != 0) {
+  if (teacher_id != 0)
+  {
     sql += "teacher_id=" + String(teacher_id) + ",";
   }
-  if (classroom_id != 0) {
+  if (classroom_id != 0)
+  {
     sql += "classroom_id=" + String(classroom_id) + ",";
   }
-  if (!date.isEmpty()) {
+  if (!date.isEmpty())
+  {
     sql += "date='" + date + "',";
   }
-  if (!start_time.isEmpty()) {
+  if (!start_time.isEmpty())
+  {
     sql += "start_time='" + start_time + "',";
   }
-  if (!end_time.isEmpty()) {
+  if (!end_time.isEmpty())
+  {
     sql += "end_time='" + end_time + "',";
   }
   sql.remove(sql.length() - 1); // remove trailing comma
@@ -212,4 +219,57 @@ void handleDeleteLesson()
   {
     server.send(400, "text/plain", "Failed to delete lesson");
   }
+}
+void handleGetNewestLesson()
+{
+  String studentId = server.arg("student_id");
+
+  DynamicJsonDocument doc(1024);
+  JsonObject data = doc.createNestedObject("data");
+
+  String sql = "SELECT l.id, l.date, l.start_time, l.end_time, "
+               "c.id AS course_id, c.name AS course_name, "
+               "t.id AS teacher_id, t.name AS teacher_name, "
+               "cl.id AS classroom_id, cl.number AS classroom_number "
+               "FROM lesson AS l "
+               "JOIN course AS c ON l.course_id = c.id "
+               "JOIN teacher AS t ON l.teacher_id = t.id "
+               "JOIN classroom AS cl ON l.classroom_id = cl.id "
+               "JOIN attendance AS a ON l.id = a.lesson_id "
+               "WHERE a.student_id = ? "
+               "ORDER BY l.date DESC, l.start_time DESC "
+               "LIMIT 1";
+
+  sqlite3_stmt *stmt;
+  if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+  {
+    sqlite3_bind_text(stmt, 1, studentId.c_str(), -1, SQLITE_TRANSIENT);
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+      data["id"] = sqlite3_column_int(stmt, 0);
+      data["date"] = sqlite3_column_text(stmt, 1);
+      data["start_time"] = sqlite3_column_text(stmt, 2);
+      data["end_time"] = sqlite3_column_text(stmt, 3);
+      data["course_id"] = sqlite3_column_int(stmt, 4);
+      data["course_name"] = String(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5)));
+      data["teacher_id"] = sqlite3_column_int(stmt, 6);
+      data["teacher_name"] = String(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7)));
+      data["classroom_id"] = sqlite3_column_int(stmt, 8);
+      data["classroom_name"] = String(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 9)));
+    }
+    else
+    {
+      server.send(400, "text/html", "No lessons found for the student ID");
+      return;
+    }
+  }
+  else
+  {
+    server.send(400, "text/html", "Failed to execute SQL query");
+    return;
+  }
+
+  String jsonStr;
+  serializeJson(doc, jsonStr);
+  server.send(200, "application/json", jsonStr);
 }

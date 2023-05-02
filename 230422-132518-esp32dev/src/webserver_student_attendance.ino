@@ -96,7 +96,12 @@ void setup()
 
   // lessons
   server.on("/lessons", HTTP_GET, handleGetLessons);
+  server.on("/lesson/newestLesson", HTTP_GET, handleGetNewestLesson);
+  server.on("/lessons", HTTP_POST, handleCreateLesson);
+  server.on("/lessons", HTTP_PUT, handleUpdateLesson);
+  server.on("/lessons", HTTP_DELETE, handleDeleteLesson);
 
+  // filesystem
   server.on("/filesystem/listFiles", HTTP_GET, handleListFiles);
   server.on("/filesystem/deleteFile", HTTP_DELETE, handleDeleteFile);
 
