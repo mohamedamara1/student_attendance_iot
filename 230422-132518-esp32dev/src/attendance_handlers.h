@@ -5,9 +5,12 @@
 #include "credits.h"
 #include "web_page.h"
 #include <ArduinoJson.h>
+#include <sMQTTBroker.h>  // https://github.com/terrorsl/sMQTTBroker
+#include <PubSubClient.h>
 
 extern WebServer server;
 extern sqlite3 *db;
+extern PubSubClient mqttClient;
 
 extern int db_exec(sqlite3 *, const char *);
 

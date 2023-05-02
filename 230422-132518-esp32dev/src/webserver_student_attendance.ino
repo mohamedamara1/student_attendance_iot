@@ -2,8 +2,14 @@
 
 #include "webserver_student_attendance.h"
 
+#define mqttPort 1883
+#define mqttServer "127.0.0.1"
+
 WebServer server(80);
 sqlite3 *db;
+sMQTTBroker broker;
+WiFiClient espClient;
+PubSubClient mqttClient(espClient);
 
 const char *data = "Callback function called";
 char *zErrMsg = 0;
@@ -13,6 +19,20 @@ bool mountSPIFFS();
 void handleNotFound();
 
 String web_content = "";
+
+TaskHandle_t brokerTask;
+
+void brokerTaskCode(void *pvParameters)
+{
+  Serial.print("broker running on core ");
+  Serial.println(xPortGetCoreID());
+
+  for (;;)
+  {
+    delay(1000);
+    broker.update();
+  }
+}
 
 void setup()
 {
@@ -53,10 +73,11 @@ void setup()
   // server.on("/teachers", HTTP_GET, handleGetTeacher);
 
   // attendances
-  // server.on("/attendances", HTTP_GET, handleGetAttendances);
-  // server.on("/attendances", HTTP_DELETE, handleGetAttendances);
+  server.on("/attendances", HTTP_GET, handleGetAttendances);
+  server.on("/attendances", HTTP_DELETE, handleDeleteAttendance);
   server.on("/attendances", HTTP_PUT, handleUpdateAttendance);
   // server.on("/attendances", HTTP_CREATE, handleGetAttendances);
+  server.on("/attendances/markPresence", HTTP_POST, handleCreateAttendance);
 
   // classes
   server.on("/classes", HTTP_GET, handleGetClasses);
@@ -157,10 +178,49 @@ void setup()
   listAllFiles();
 
   // here we initiate the database connection
-  /*
-  if (openDb("/spiffs/attendance_system.db", &db))
-    return;
-  */
+
+  if (openDb("/spiffs/attendance_db.db", &db) != SQLITE_OK)
+  {
+    Serial.println("Failed to open database");
+    // Handle the error
+  }
+
+  /*  create task for broker that will be executed on core 0  */
+  xTaskCreatePinnedToCore(
+      brokerTaskCode, /* Task function. */
+      "brokerTask",   /* name of task. */
+      10000,          /* Stack size of task */
+      NULL,           /* parameter of the task */
+      1,              /* priority of the task */
+      &brokerTask,    /* Task handle to keep track of created task */
+      0);             /* pin task to core 0 */
+  delay(500);
+  broker.init(mqttPort);
+
+  mqttClient.setServer(mqttServer, mqttPort);
+  unsigned long start = millis();
+  while (!mqttClient.connected())
+  {
+    Serial.println("Connecting to MQTT broker...");
+    if (mqttClient.connect("ESP32"))
+    {
+      Serial.println("Connected to MQTT broker");
+    }
+    else
+    {
+      Serial.print("Failed to connect to MQTT broker, rc=");
+      Serial.println(mqttClient.state());
+      delay(1000);
+    }
+    // Break out of the loop after 10 seconds
+    if (millis() - start > 10000)
+    {
+      Serial.println("Connection timed out");
+      break;
+    }
+  }
+  // Initialize the database if it's empty
+  // initializeDatabase();
 }
 
 void loop()

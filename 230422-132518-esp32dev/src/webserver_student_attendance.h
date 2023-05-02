@@ -10,6 +10,12 @@
 #include "credits.h"
 #include "web_page.h"
 #include <ArduinoJson.h>
+
+#include <sMQTTBroker.h>  // https://github.com/terrorsl/sMQTTBroker
+#include <PubSubClient.h> // https://github.com/knolleary/pubsubclient
+
+
+
 #include "user_handlers.h"
 #include "attendance_handlers.h"
 #include "lesson_handlers.h"
