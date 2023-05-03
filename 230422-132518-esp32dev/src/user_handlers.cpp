@@ -91,30 +91,31 @@ void handleDeleteUser()
   }
 }
 void handleGetUser()
-{
+{  
   String sql = "";
   int id = server.arg("id").toInt();
-  // int id = server.pathArg(0).toInt();
+  DynamicJsonDocument doc(1024);
+  JsonObject response = doc.to<JsonObject>();
 
   sql = "select * from user where id=" + String(id);
   sqlite3_stmt *stmt;
 
-  Serial.println(sql);
   if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
   {
-    // Create JSON response
-    StaticJsonDocument<100> jsonResponse;
-    jsonResponse["id"] = id;
-    jsonResponse["email"] = sqlite3_column_text(stmt, 1);
-    jsonResponse["isTeacher"] = sqlite3_column_int(stmt, 3);
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+      response["id"] = sqlite3_column_int(stmt, 0);
+      response["email"] = sqlite3_column_text(stmt, 1);
+      response["isTeacher"] = sqlite3_column_int(stmt, 3);
+    }
 
     String jsonStr;
-    serializeJson(jsonResponse, jsonStr);
+    serializeJson(doc, jsonStr);
     server.send(200, "application/json", jsonStr);
   }
   else
   {
-    server.send(400, "text/plain", "Failed to get user");
+    server.send(400, "text/html", "FAIL");
   }
 }
 
@@ -142,13 +143,16 @@ void handleUpdateUser()
 
   // Build SQL query to update user
   sql = "update user set ";
-  if (!email.isEmpty()) {
+  if (!email.isEmpty())
+  {
     sql += "email='" + email + "',";
   }
-  if (!password.isEmpty()) {
+  if (!password.isEmpty())
+  {
     sql += "password='" + password + "',";
   }
-  if (!isTeacher.isEmpty()) {
+  if (!isTeacher.isEmpty())
+  {
     sql += "isTeacher='" + isTeacher + "',";
   }
   sql.remove(sql.length() - 1); // remove trailing comma

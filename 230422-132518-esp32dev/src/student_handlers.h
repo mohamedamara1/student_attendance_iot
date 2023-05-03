@@ -14,5 +14,7 @@ extern int db_exec(sqlite3 *, const char *);
 void handleGetStudents();
 void handleCreateStudent();
 void handleDeleteStudent();
-void handleGetStudent();
+void handleGetStudentById();
+void handleGetStudentByUserId();
+
 void handleUpdateStudent();

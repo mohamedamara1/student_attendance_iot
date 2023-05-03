@@ -63,7 +63,14 @@ export function SignIn() {
       // TODO: Handle response data as needed (e.g. store token in local storage).
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('userRole', data.userRole);
-  
+
+      const studentData = await fetch('/api/sign-in', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    });
   /*    switch (data.userRole) {
         case 'admin':
           navigateTo('/admin');

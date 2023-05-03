@@ -56,14 +56,15 @@ void setup()
   server.on("/users", HTTP_POST, handleCreateUser);
   server.on("/users", HTTP_PUT, handleUpdateUser);
   server.on("/users", HTTP_DELETE, handleDeleteUser);
-  // server.on("/users", HTTP_GET, handleGetUser);
+  server.on("/users/findById", HTTP_GET, handleGetUser);
 
   // students
   server.on("/students", HTTP_GET, handleGetStudents);
   server.on("/students", HTTP_POST, handleCreateStudent);
   server.on("/students", HTTP_PUT, handleUpdateStudent);
   server.on("/students", HTTP_DELETE, handleDeleteStudent);
-  // server.on("/students", HTTP_GET, handleGetStudent);
+  server.on("/students/findById", HTTP_GET, handleGetStudentById);
+  server.on("/students/findByUserId", HTTP_GET, handleGetStudentByUserId);
 
   // teachers
   server.on("/teachers", HTTP_GET, handleGetTeachers);
