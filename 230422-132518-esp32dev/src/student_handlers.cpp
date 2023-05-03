@@ -125,6 +125,10 @@ void handleGetStudentById()
 
 void handleGetStudentByUserId()
 {
+  // sendCrossOriginHeader();
+  // server.sendHeader("Access-Control-Allow-Origin", "http://localhost:5173/, http://localhost:5173,  ");
+  // server.sendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  // server.sendHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   String sql = "";
   int userId = server.arg("userId").toInt();
 

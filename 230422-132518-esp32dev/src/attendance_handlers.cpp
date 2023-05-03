@@ -104,7 +104,12 @@ void handleCreateAttendance()
   if (db_exec(db, sql.c_str()) == SQLITE_OK)
   {
     // publish to MQTT topic
-    String presenceString = "presence/" + lessonId;
+    String presenceWord = "presence/";
+    Serial.println(lessonId);
+
+    // presenceString.append(lessonId);
+    String presenceString = presenceWord + lessonId;
+    Serial.println(presenceString);
     mqttClient.publish(presenceString.c_str(), studentId.c_str());
 
     // create JSON response

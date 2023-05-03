@@ -5,8 +5,9 @@
 #include "credits.h"
 #include "web_page.h"
 #include <ArduinoJson.h>
-#include <sMQTTBroker.h>  // https://github.com/terrorsl/sMQTTBroker
+#include <sMQTTBroker.h> // https://github.com/terrorsl/sMQTTBroker
 #include <PubSubClient.h>
+#include <string>
 
 extern WebServer server;
 extern sqlite3 *db;

@@ -66,12 +66,13 @@ export function SignIn() {
 
       const url = 'http://192.168.1.8/students/findByUserId?userId=' + data.userId;
       
-      const studentData = await fetch(url, {
+      const studentResponse = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
         }
       });
+      const studentData = await studentResponse.json()
       console.log(studentData)
       localStorage.setItem('studentId', studentData.id);
       localStorage.setItem('classId', studentData.classId);

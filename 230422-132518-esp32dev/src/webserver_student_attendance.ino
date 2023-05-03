@@ -34,6 +34,20 @@ void brokerTaskCode(void *pvParameters)
   }
 }
 
+void sendCrossOriginHeader()
+{
+  Serial.println(F("sendCORSHeader"));
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  server.sendHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+}
+void handleOptions()
+{
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.send(204);
+}
 void setup()
 {
   Serial.begin(115200);
@@ -65,6 +79,7 @@ void setup()
   server.on("/students", HTTP_DELETE, handleDeleteStudent);
   server.on("/students/findById", HTTP_GET, handleGetStudentById);
   server.on("/students/findByUserId", HTTP_GET, handleGetStudentByUserId);
+  server.on("/students/findByUserId", HTTP_OPTIONS, handleOptions); // Add this line to handle OPTIONS requests
 
   // teachers
   server.on("/teachers", HTTP_GET, handleGetTeachers);
@@ -79,6 +94,7 @@ void setup()
   server.on("/attendances", HTTP_PUT, handleUpdateAttendance);
   // server.on("/attendances", HTTP_CREATE, handleGetAttendances);
   server.on("/attendances/markPresence", HTTP_POST, handleCreateAttendance);
+  server.on("/attendances/markPresence", HTTP_OPTIONS, handleOptions); // Add this line to handle OPTIONS requests
 
   // classes
   server.on("/classes", HTTP_GET, handleGetClasses);
@@ -167,7 +183,7 @@ void setup()
     }
     file = rootOne.openNextFile();
   }
-
+  server.enableCORS(); // This is the magic
   server.begin();
   int rc;
 

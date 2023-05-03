@@ -9,6 +9,7 @@
 extern WebServer server;
 extern sqlite3 *db;
 
+extern void sendCrossOriginHeader();
 extern int db_exec(sqlite3 *, const char *);
 
 void handleGetStudents();

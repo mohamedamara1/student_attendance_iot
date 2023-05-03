@@ -235,10 +235,11 @@ void handleGetNewestLesson()
                "JOIN course AS c ON l.course_id = c.id "
                "JOIN teacher AS t ON l.teacher_id = t.id "
                "JOIN classroom AS cl ON l.classroom_id = cl.id "
-               "JOIN attendance AS a ON l.id = a.lesson_id "
-               "WHERE a.student_id = ? "
+               "JOIN class AS cls ON l.class_id = cls.id "
+               "JOIN student AS s ON cls.id = s.class_id "
+               "WHERE s.id = ? "
                "ORDER BY l.date DESC, l.start_time DESC "
-               "LIMIT 1";
+               "LIMIT 1;";
 
   sqlite3_stmt *stmt;
   if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
