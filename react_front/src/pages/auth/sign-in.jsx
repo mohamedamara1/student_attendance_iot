@@ -49,9 +49,9 @@ export function SignIn() {
       const response = {
          ok: true,
          json: async () => (
-          {  userId: 1,
-            email: "teacher@test.com",
-            userRole: "teacher"
+          {  userId: 2,
+            email: "student@test.com",
+            userRole: "student"
           }) };
 
       if (!response.ok) {
@@ -64,27 +64,19 @@ export function SignIn() {
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('userRole', data.userRole);
 
-      const studentData = await fetch('/api/sign-in', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, password })
-    });
-  /*    switch (data.userRole) {
-        case 'admin':
-          navigateTo('/admin');
-          break;
-        case 'teacher':
-          navigateTo('/teacher');
-          break;
-        case 'student':
-          navigateTo('/student');
-          break;
-        default:
-          console.error("error");
-          break;
-      }*/
+      const url = 'http://192.168.1.8/students/findByUserId?userId=' + data.userId;
+      
+      const studentData = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log(studentData)
+      localStorage.setItem('studentId', studentData.id);
+      localStorage.setItem('classId', studentData.classId);
+      localStorage.setItem('name', studentData.name);
+
       navigateTo("/dashboard/home");
     } catch (error) {
       console.error(error);
