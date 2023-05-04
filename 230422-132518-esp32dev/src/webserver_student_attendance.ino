@@ -95,7 +95,10 @@ void setup()
   // attendances
   server.on("/attendances", HTTP_GET, handleGetAttendances);
   server.on("/attendances", HTTP_DELETE, handleDeleteAttendance);
+  server.on("/attendances/deleteAll", HTTP_DELETE, handleDeleteAllAttendances);
   server.on("/attendances", HTTP_PUT, handleUpdateAttendance);
+  server.on("/attendances", HTTP_OPTIONS, handleOptions);
+
   // server.on("/attendances", HTTP_CREATE, handleGetAttendances);
   server.on("/attendances/markPresence", HTTP_POST, handleCreateAttendance);
   server.on("/attendances/markPresence", HTTP_OPTIONS, handleOptions); // Add this line to handle OPTIONS requests

@@ -4,7 +4,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { Card, CardBody, CardHeader, Typography, Avatar, Chip } from "@material-tailwind/react";
 
-function Table({ data, columns, handleRowClick }) {
+function Table({ data, columns, handleRowClick, setAttendances }) {
   const [clickedRowIndex, setClickedRowIndex] = useState(null);
 
   return (
@@ -33,7 +33,12 @@ function Table({ data, columns, handleRowClick }) {
           <tbody>
             {data.map((item, index) => (
               <tr key={index}  
-              onClick={() => {handleRowClick(item.id); setClickedRowIndex(index);}}    
+              onClick={() =>{
+                if (typeof handleRowClick === 'function') {
+                  setClickedRowIndex(index);
+                  handleRowClick(item.id);
+                }
+              } }    
               className={`hover:bg-gray-100 ${clickedRowIndex === index ? "bg-blue-100" : ""} hover:bg-blue-50 transition duration-500 ease-in-out`
               }>
                   {columns.columns.map(({ accessor, render }) => (
@@ -43,7 +48,7 @@ function Table({ data, columns, handleRowClick }) {
                       index === data.length - 1 ? "" : "border-b border-blue-gray-50"
                     }`}
                   >
-                    {render ? render(item[accessor]) : item[accessor]}
+                    {render ? render(item[accessor], {row :  item, setAttendances , attendances: data }) : item[accessor]}
                   </td>
                 ))}
               </tr>

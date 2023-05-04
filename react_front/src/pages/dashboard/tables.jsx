@@ -15,7 +15,7 @@ import { lessonsTableData, lessonsTableColumns, attendancesTableColumns, attenda
 import Table from "@/widgets/table";
 
 export function Tables() {
-  const [attendances, setAttendances] = useState(attendancesTableData);
+  const [attendances, setAttendances] = useState([]);
   const [lessons, setLessons] = useState([]);
   const teacherId= localStorage.getItem("teacherId");
 
@@ -47,7 +47,7 @@ export function Tables() {
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
      
-      <Table data={attendances} columns={attendancesTableColumns} />
+      <Table data={attendances} setAttendances={setAttendances} columns={attendancesTableColumns} />
       <Table data={lessons} columns={lessonsTableColumns} handleRowClick={handleLessonClick} />          
       
     </div>

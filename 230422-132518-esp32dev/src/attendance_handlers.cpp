@@ -95,8 +95,8 @@ void handleCreateAttendance()
     Serial.println("lesson id : " + lessonId + " yes");
 
     // presenceString.append(lessonId);
-    presenceWord += lessonId;
-    //Serial.println(presenceString);
+    // presenceWord += lessonId;
+    // Serial.println(presenceString);
     mqttClient.publish(presenceWord.c_str(), studentId.c_str());
 
     // create JSON response
@@ -135,6 +135,25 @@ void handleDeleteAttendance()
   else
   {
     server.send(400, "text/plain", "Failed to delete attendance");
+  }
+}
+
+void handleDeleteAllAttendances()
+{
+  String sql = "DELETE FROM attendance";
+
+  if (db_exec(db, sql.c_str()) == SQLITE_OK)
+  {
+    StaticJsonDocument<100> jsonResponse;
+    jsonResponse["message"] = "All attendance records deleted successfully";
+
+    String jsonStr;
+    serializeJson(jsonResponse, jsonStr);
+    server.send(200, "application/json", jsonStr);
+  }
+  else
+  {
+    server.send(400, "text/plain", "Failed to delete attendance records");
   }
 }
 

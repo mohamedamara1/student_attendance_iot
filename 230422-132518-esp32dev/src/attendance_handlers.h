@@ -18,5 +18,6 @@ extern int db_exec(sqlite3 *, const char *);
 void handleGetAttendances();
 void handleCreateAttendance();
 void handleDeleteAttendance();
+void handleDeleteAllAttendances();
 void handleUpdateAttendance();
 void handleGetAttendancesByLessonId();
