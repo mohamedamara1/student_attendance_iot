@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Card,
@@ -16,10 +16,28 @@ import Table from "@/widgets/table";
 
 export function Tables() {
   const [attendances, setAttendances] = useState(attendancesTableData);
-   async function handleLessonClick(lessonId) {
+  const [lessons, setLessons] = useState([]);
+  const teacherId= localStorage.getItem("teacherId");
+
+  async function fetchLessonsTableData() {
+    try {
+      const response = await fetch(`http://192.168.1.8/lessons/findByTeacherId?teacherId=${teacherId}`);
+      const data = await response.json();
+      setLessons(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchLessonsTableData();
+  }, []);
+
+  async function handleLessonClick(lessonId) {
     console.log(lessonId);
     try {
-      const filteredData = attendancesTableData.filter((attendance) => attendance.lesson_id === lessonId);
+      const response = await fetch(`http://192.168.1.8/attendances/findByLessonId?lessonId=${lessonId}`);
+      const filteredData = await response.json();
       setAttendances(filteredData);
     } catch (error) {
       console.error(error);
@@ -30,7 +48,7 @@ export function Tables() {
     <div className="mt-12 mb-8 flex flex-col gap-12">
      
       <Table data={attendances} columns={attendancesTableColumns} />
-      <Table data={lessonsTableData} columns={lessonsTableColumns} handleRowClick={handleLessonClick} />          
+      <Table data={lessons} columns={lessonsTableColumns} handleRowClick={handleLessonClick} />          
       
     </div>
   );

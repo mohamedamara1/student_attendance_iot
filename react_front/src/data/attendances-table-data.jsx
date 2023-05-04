@@ -7,64 +7,14 @@ import {
 const attendancesTableData = [
     {
       id: 1,
-      lesson_id: 1, // add lesson id
+    // lesson_id: 1, // add lesson id
       student_name: "John Doe",
       course_name: "Mathematics",
       class_name: "A",
-      date: "2023-05-01",
-      start_time: "08:00",
+ //     date: "2023-05-01",
+   //   start_time: "08:00",
       present: true,
-    },
-    {
-      id: 2,
-      lesson_id: 1, // add lesson id
-      student_name: "Jane Smith",
-      course_name: "Science",
-      class_name: "B",
-      date: "2023-05-02",
-      start_time: "10:00",
-      present: false,
-    },
-    {
-      id: 3,
-      lesson_id: 2, // add lesson id
-      student_name: "Bob Johnson",
-      course_name: "English",
-      class_name: "C",
-      date: "2023-05-03",
-      start_time: "13:00",
-      present: true,
-    },
-    {
-      id: 4,
-      lesson_id: 2, // add lesson id
-      student_name: "Alice Lee",
-      course_name: "History",
-      class_name: "D",
-      date: "2023-05-04",
-      start_time: "15:00",
-      present: false,
-    },
-    {
-      id: 5,
-      lesson_id: 3, // add lesson id
-      student_name: "Tom Brown",
-      course_name: "Geography",
-      class_name: "E",
-      date: "2023-05-05",
-      start_time: "17:00",
-      present: true,
-    },
-    {
-      id: 6,
-      lesson_id: 3, // add lesson id
-      student_name: "Sarah Jones",
-      course_name: "Biology",
-      class_name: "F",
-      date: "2023-05-06",
-      start_time: "19:00",
-      present: false,
-    },
+    }
   ];
   
 

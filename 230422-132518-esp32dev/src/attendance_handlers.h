@@ -19,3 +19,4 @@ void handleGetAttendances();
 void handleCreateAttendance();
 void handleDeleteAttendance();
 void handleUpdateAttendance();
+void handleGetAttendancesByLessonId();

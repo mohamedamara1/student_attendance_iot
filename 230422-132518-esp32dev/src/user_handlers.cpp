@@ -15,6 +15,7 @@ void handleGetUsers()
     {
       JsonObject obj = array.createNestedObject();
       obj["id"] = sqlite3_column_int(stmt, 0);
+      obj["password"] = sqlite3_column_text(stmt, 2);
       obj["email"] = sqlite3_column_text(stmt, 1);
       obj["isTeacher"] = sqlite3_column_int(stmt, 3);
     }
@@ -91,7 +92,7 @@ void handleDeleteUser()
   }
 }
 void handleGetUser()
-{  
+{
   String sql = "";
   int id = server.arg("id").toInt();
   DynamicJsonDocument doc(1024);
@@ -174,4 +175,64 @@ void handleUpdateUser()
   {
     server.send(400, "text/plain", "Failed to update user");
   }
+}
+
+void handleLogin()
+{
+  String sql = "";
+  StaticJsonDocument<250> jsonDocument;
+  if (server.hasArg("plain") == false)
+  {
+    server.send(400, "text/plain", "Missing request body");
+    return;
+  }
+  String body = server.arg("plain");
+  deserializeJson(jsonDocument, body);
+
+  String email = jsonDocument["email"];
+  String password = jsonDocument["password"];
+  sql = "select id, isTeacher from user where email='" + email + "' and password='" + password + "'";
+
+  sqlite3_stmt *stmt;
+  int res = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL);
+  if (res != SQLITE_OK)
+  {
+    server.send(500, "text/plain", "Database error");
+    return;
+  }
+
+  res = sqlite3_step(stmt);
+  if (res == SQLITE_ROW)
+  {
+    int userId = sqlite3_column_int(stmt, 0);
+    int isTeacher = sqlite3_column_int(stmt, 1);
+
+    // Determine userRole based on isTeacher value
+    String userRole = "student";
+    if (isTeacher == 1)
+    {
+      userRole = "teacher";
+    }
+    else
+    {
+      userRole = "student";
+    }
+
+    // Create JSON response
+    StaticJsonDocument<250> jsonResponse;
+    jsonResponse["message"] = "Login successful";
+    jsonResponse["userId"] = userId;
+    jsonResponse["email"] = email;
+    jsonResponse["userRole"] = userRole;
+
+    String jsonStr;
+    serializeJson(jsonResponse, jsonStr);
+    server.send(200, "application/json", jsonStr);
+  }
+  else
+  {
+    server.send(401, "text/plain", "Invalid email or password");
+  }
+
+  sqlite3_finalize(stmt);
 }

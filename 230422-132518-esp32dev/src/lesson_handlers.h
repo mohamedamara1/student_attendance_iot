@@ -20,5 +20,6 @@ void handleUpdateLesson();
 void handleDeleteLesson();
 void handleGetLessons();
 void handleGetNewestLesson();
+void handleGetLessonsByTeacherId();
 
 #endif // USER_HANDLER_H

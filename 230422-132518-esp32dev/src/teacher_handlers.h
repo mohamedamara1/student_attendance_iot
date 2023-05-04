@@ -15,3 +15,4 @@ void handleCreateTeacher();
 void handleDeleteTeacher();
 void handleGetTeacher();
 void handleUpdateTeacher();
+void handleGetTeacherByUserId();

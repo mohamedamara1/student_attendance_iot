@@ -13,10 +13,10 @@ void handleGetTeachers()
   {
     while (sqlite3_step(stmt) == SQLITE_ROW)
     {
-        JsonObject obj = array.createNestedObject();
-        obj["id"] = sqlite3_column_int(stmt, 0);
-        obj["name"] = sqlite3_column_text(stmt, 1);
-        obj["userId"] = sqlite3_column_int(stmt, 2);
+      JsonObject obj = array.createNestedObject();
+      obj["id"] = sqlite3_column_int(stmt, 0);
+      obj["name"] = sqlite3_column_text(stmt, 1);
+      obj["userId"] = sqlite3_column_int(stmt, 2);
     }
     String jsonStr;
     serializeJson(doc, jsonStr);
@@ -117,7 +117,36 @@ void handleGetTeacher()
     server.send(400, "text/plain", "Failed to get teacher");
   }
 }
+void handleGetTeacherByUserId()
+{
 
+  String sql = "";
+  int userId = server.arg("userId").toInt();
+
+  sql = "select * from teacher where user_id=" + String(userId);
+  sqlite3_stmt *stmt;
+
+  if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+  {
+    DynamicJsonDocument doc(1024);
+    JsonObject response = doc.to<JsonObject>();
+
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+      response["id"] = sqlite3_column_int(stmt, 0);
+      response["name"] = sqlite3_column_text(stmt, 1);
+      response["userId"] = sqlite3_column_int(stmt, 2);
+    }
+
+    String jsonStr;
+    serializeJson(doc, jsonStr);
+    server.send(200, "application/json", jsonStr);
+  }
+  else
+  {
+    server.send(400, "text/plain", "Failed to get teacher");
+  }
+}
 void handleUpdateTeacher()
 {
   String sql = "";
@@ -139,10 +168,12 @@ void handleUpdateTeacher()
 
   // Build SQL query to update teacher
   sql = "update teacher set ";
-  if (!name.isEmpty()) {
+  if (!name.isEmpty())
+  {
     sql += "name='" + name + "',";
   }
-  if (userId > 0) {
+  if (userId > 0)
+  {
     sql += "userId=" + String(userId) + ",";
   }
   sql.remove(sql.length() - 1); // remove trailing comma

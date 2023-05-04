@@ -32,27 +32,21 @@ export function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-   // const email = e.target.email.value;
-    //const password = e.target.password.value;
+
   
     try {
-      /*
-      const response = await fetch('/api/sign-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      });
-  */
-      const response = {
-         ok: true,
-         json: async () => (
-          {  userId: 2,
-            email: "student@test.com",
-            userRole: "student"
-          }) };
+
+
+      const response = await fetch('http://192.168.1.8/users/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email,
+            password
+          })
+        });
 
       if (!response.ok) {
         throw new Error('Sign-in failed');
@@ -64,8 +58,8 @@ export function SignIn() {
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('userRole', data.userRole);
 
+     if (data.userRole == "student"){
       const url = 'http://192.168.1.8/students/findByUserId?userId=' + data.userId;
-      
       const studentResponse = await fetch(url, {
         method: 'GET',
         headers: {
@@ -77,7 +71,22 @@ export function SignIn() {
       localStorage.setItem('studentId', studentData.id);
       localStorage.setItem('classId', studentData.classId);
       localStorage.setItem('name', studentData.name);
-
+     }
+     else if (data.userRole == "teacher"){
+      const url = 'http://192.168.1.8/teachers/findByUserId?userId=' + data.userId;
+      const teacherResponse = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const teacherData = await teacherResponse.json()
+      console.log(teacherData)
+      localStorage.setItem('teacherId', teacherData.id);
+      localStorage.setItem('name', teacherData.name);
+      localStorage.removeItem('studentId');
+      localStorage.removeItem('classId');
+    }
       navigateTo("/dashboard/home");
     } catch (error) {
       console.error(error);

@@ -71,6 +71,8 @@ void setup()
   server.on("/users", HTTP_PUT, handleUpdateUser);
   server.on("/users", HTTP_DELETE, handleDeleteUser);
   server.on("/users/findById", HTTP_GET, handleGetUser);
+  server.on("/users/login", HTTP_POST, handleLogin);
+  server.on("/users/login", HTTP_OPTIONS, handleOptions);
 
   // students
   server.on("/students", HTTP_GET, handleGetStudents);
@@ -87,6 +89,8 @@ void setup()
   server.on("/teachers", HTTP_PUT, handleUpdateTeacher);
   server.on("/teachers", HTTP_DELETE, handleDeleteTeacher);
   // server.on("/teachers", HTTP_GET, handleGetTeacher);
+  server.on("/teachers/findByUserId", HTTP_GET, handleGetTeacherByUserId);
+  server.on("/teachers/findByUserId", HTTP_OPTIONS, handleOptions); // Add this line to handle OPTIONS requests
 
   // attendances
   server.on("/attendances", HTTP_GET, handleGetAttendances);
@@ -95,7 +99,7 @@ void setup()
   // server.on("/attendances", HTTP_CREATE, handleGetAttendances);
   server.on("/attendances/markPresence", HTTP_POST, handleCreateAttendance);
   server.on("/attendances/markPresence", HTTP_OPTIONS, handleOptions); // Add this line to handle OPTIONS requests
-
+  server.on("/attendances/findByLessonId", HTTP_GET, handleGetAttendancesByLessonId);
   // classes
   server.on("/classes", HTTP_GET, handleGetClasses);
   server.on("/classes", HTTP_POST, handleCreateClass);
@@ -117,6 +121,7 @@ void setup()
   server.on("/lessons", HTTP_POST, handleCreateLesson);
   server.on("/lessons", HTTP_PUT, handleUpdateLesson);
   server.on("/lessons", HTTP_DELETE, handleDeleteLesson);
+  server.on("/lessons/findByTeacherId", HTTP_GET, handleGetLessonsByTeacherId);
 
   // filesystem
   server.on("/filesystem/listFiles", HTTP_GET, handleListFiles);

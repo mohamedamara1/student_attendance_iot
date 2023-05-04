@@ -274,3 +274,47 @@ void handleGetNewestLesson()
   serializeJson(doc, jsonStr);
   server.send(200, "application/json", jsonStr);
 }
+
+void handleGetLessonsByTeacherId()
+{
+
+  String teacherId = server.arg("teacherId");
+
+  String sql = "SELECT lesson.id, course.name AS course_name, class.name AS class_name, classroom.number AS classroom_number, lesson.date, lesson.start_time, lesson.end_time "
+               "FROM lesson "
+               "JOIN course ON lesson.course_id = course.id "
+               "JOIN class ON lesson.class_id = class.id "
+               "JOIN classroom ON lesson.classroom_id = classroom.id "
+               "WHERE lesson.teacher_id = '" +
+               teacherId + "' "
+                           "ORDER BY lesson.date DESC";
+
+  sqlite3_stmt *stmt;
+
+  if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+  {
+    DynamicJsonDocument doc(1024);
+    JsonArray response = doc.to<JsonArray>();
+
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+      JsonObject lesson = response.createNestedObject();
+
+      lesson["id"] = sqlite3_column_int(stmt, 0);
+      lesson["Course"] = sqlite3_column_text(stmt, 1);
+      lesson["Class"] = sqlite3_column_text(stmt, 2);
+      lesson["Classroom"] = sqlite3_column_text(stmt, 3);
+      lesson["Date"] = sqlite3_column_text(stmt, 4);
+      lesson["Starttime"] = sqlite3_column_text(stmt, 5);
+      lesson["Endtime"] = sqlite3_column_text(stmt, 6);
+    }
+
+    String jsonStr;
+    serializeJson(doc, jsonStr);
+    server.send(200, "application/json", jsonStr);
+  }
+  else
+  {
+    server.send(400, "text/plain", "Failed to get lessons");
+  }
+}
