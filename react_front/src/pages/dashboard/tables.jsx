@@ -7,10 +7,11 @@ export function Tables() {
   const [attendances, setAttendances] = useState([]);
   const [lessons, setLessons] = useState([]);
   const teacherId= localStorage.getItem("teacherId");
+  const [selectedLessonId, setSelectedLessonId] = useState();
 
   async function fetchLessonsTableData() {
     try {
-      const response = await fetch(`http://192.168.1.8/lessons/findByTeacherId?teacherId=${teacherId}`);
+      const response = await fetch(`http://192.168.4.1/lessons/findByTeacherId?teacherId=${teacherId}`);
       const data = await response.json();
       setLessons(data);
     } catch (error) {
@@ -26,7 +27,7 @@ export function Tables() {
     console.log(lessonId);
     setSelectedLessonId(lessonId);
     try {
-      const response = await fetch(`http://192.168.1.8/attendances/findByLessonId?lessonId=${lessonId}`);
+      const response = await fetch(`http://192.168.4.1/attendances/findByLessonId?lessonId=${lessonId}`);
       const filteredData = await response.json();
       setAttendances(filteredData);
     } catch (error) {
@@ -36,7 +37,7 @@ export function Tables() {
 /*
   useEffect(() => {
     // Connect to MQTT broker
-    const esp32Ip ="192.168.1.8"
+    const esp32Ip ="192.168.4.1"
     const mqttBrokerPort = "1883"
     const mosqittoURL = "mqtt://test.mosquitto.org:8080";
     const espBrokerUrl = "mqtt://" + esp32Ip + ":" +mqttBrokerPort

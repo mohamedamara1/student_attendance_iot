@@ -5,6 +5,10 @@
 #define mqttPort 1883
 #define mqttServer "127.0.0.1"
 
+// Replace with your network credentials
+const char *ssid = "ESP32-Access-Point";
+const char *password = "123456789";
+
 WebServer server(80);
 sqlite3 *db;
 sMQTTBroker broker;
@@ -50,17 +54,26 @@ void handleOptions()
 }
 void setup()
 {
-  Serial.begin(115200);
-  Serial.print("\n Connecting to Wifi");
+  /* Serial.begin(115200);
+   Serial.print("\n Connecting to Wifi");
 
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+   WiFi.mode(WIFI_STA);
+   WiFi.begin(WIFI_SSID, WIFI_PASS);
 
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(250);
-    Serial.print(".");
-  }
+   while (WiFi.status() != WL_CONNECTED)
+   {
+     delay(250);
+     Serial.print(".");
+   }*/
+
+  // Connect to Wi-Fi network with SSID and password
+  Serial.print("Setting AP (Access Point)…");
+  // Remove the password parameter, if you want the AP (Access Point) to be open
+  WiFi.softAP(ssid, password);
+
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
 
   Serial.print("\n Connected. IP adress: ");
   Serial.println(WiFi.localIP());

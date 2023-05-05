@@ -37,7 +37,7 @@ export function SignIn() {
     try {
 
 
-      const response = await fetch('http://192.168.1.8/users/login', {
+      const response = await fetch('http://192.168.4.1/users/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -59,7 +59,7 @@ export function SignIn() {
       localStorage.setItem('userRole', data.userRole);
 
      if (data.userRole == "student"){
-      const url = 'http://192.168.1.8/students/findByUserId?userId=' + data.userId;
+      const url = 'http://192.168.4.1/students/findByUserId?userId=' + data.userId;
       const studentResponse = await fetch(url, {
         method: 'GET',
         headers: {
@@ -73,7 +73,7 @@ export function SignIn() {
       localStorage.setItem('name', studentData.name);
      }
      else if (data.userRole == "teacher"){
-      const url = 'http://192.168.1.8/teachers/findByUserId?userId=' + data.userId;
+      const url = 'http://192.168.4.1/teachers/findByUserId?userId=' + data.userId;
       const teacherResponse = await fetch(url, {
         method: 'GET',
         headers: {

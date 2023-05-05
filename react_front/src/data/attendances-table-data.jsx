@@ -19,7 +19,7 @@ const attendancesTableData = [
 
   const handleToggleAttendance = (record, attendances, setAttendances) => {
     const newPresent = !record.present;
-    const url = `http://192.168.1.8/attendances?id=${record.id}`;
+    const url = `http://192.168.4.1/attendances?id=${record.id}`;
     const data = { present: newPresent };
     console.log(attendances)
 

@@ -12,7 +12,7 @@ const LessonPage = (props) => {
 
   useEffect(() => {
     // Fetch the latest lesson
-    fetch(`http://192.168.1.8/lesson/newestLesson?student_id=${studentId}`)
+    fetch(`http://192.168.4.1/lesson/newestLesson?student_id=${studentId}`)
       .then(response => response.json())
       .then(response => response.data)
       .then(data => {
@@ -29,7 +29,7 @@ const LessonPage = (props) => {
     const lessonId = lesson.id;
     const present = true;
   
-    fetch('http://192.168.1.8/attendances/markPresence', {
+    fetch('http://192.168.4.1/attendances/markPresence', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
