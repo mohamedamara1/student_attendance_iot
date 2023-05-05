@@ -13,11 +13,7 @@ export function Auth() {
       path: "/dashboard/home",
       icon: ChartPieIcon,
     },
-    {
-      name: "sign in",
-      path: "/auth/sign-in",
-      icon: ArrowRightOnRectangleIcon,
-    },
+  
   ];
 
   return (

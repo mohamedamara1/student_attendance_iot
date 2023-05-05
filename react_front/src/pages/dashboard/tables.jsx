@@ -1,26 +1,12 @@
 import { useState, useEffect } from "react";
-import mqtt from "precompiled-mqtt";
 
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Typography,
-  Avatar,
-  Chip,
-  Tooltip,
-  Progress,
-} from "@material-tailwind/react";
-
-import { lessonsTableData, lessonsTableColumns, attendancesTableColumns, attendancesTableData } from "@/data";
+import { lessonsTableColumns, attendancesTableColumns, attendancesTableData } from "@/data";
 import Table from "@/widgets/table";
 
 export function Tables() {
   const [attendances, setAttendances] = useState([]);
   const [lessons, setLessons] = useState([]);
   const teacherId= localStorage.getItem("teacherId");
-  const [selectedLessonId, setSelectedLessonId] = useState();
-  const [mqttStatus, setMqttStatus] = useState("Connecting...");
 
   async function fetchLessonsTableData() {
     try {
@@ -47,7 +33,7 @@ export function Tables() {
       console.error(error);
     }
   }
-
+/*
   useEffect(() => {
     // Connect to MQTT broker
     const esp32Ip ="192.168.1.8"
@@ -89,17 +75,11 @@ export function Tables() {
     // ...
     setMqttStatus("Disconnected");
   };
-
+*/
  
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">MQTT Status: {mqttStatus}</h2>
-        <div className="flex gap-4">
-          <button>Connect</button>
-          <button >Disconnect</button>
-        </div>
-      </div>
+
       <Table
         data={attendances}
         setAttendances={setAttendances}

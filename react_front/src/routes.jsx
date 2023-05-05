@@ -44,7 +44,7 @@ export const routes = [
     ],
   },
   {
-    title: "auth pages",
+    title: "",
     layout: "auth",
     pages: [
       {
@@ -52,6 +52,8 @@ export const routes = [
         name: "sign in",
         path: "/sign-in",
         element: <SignIn />,
+        allowedRoles: [ "admin"]
+
       },
     ],
   },

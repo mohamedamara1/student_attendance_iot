@@ -12,8 +12,8 @@ void handleGetAttendances()
     {
       JsonObject obj = array.createNestedObject();
       obj["id"] = sqlite3_column_int(stmt, 0);
-      obj["lessonId"] = sqlite3_column_text(stmt, 1);
-      obj["studentId"] = sqlite3_column_text(stmt, 2);
+      obj["studentId"] = sqlite3_column_text(stmt, 1);
+      obj["lessonId"] = sqlite3_column_text(stmt, 2);
       obj["present"] = sqlite3_column_int(stmt, 3);
     }
     String jsonStr;
